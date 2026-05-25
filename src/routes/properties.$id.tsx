@@ -186,10 +186,10 @@ function PropertyDetailPage() {
 
             <div className="flex items-center gap-3 py-4 border-y mb-4">
               <div className="h-10 w-10 rounded-full bg-secondary grid place-items-center text-sm font-semibold">
-                {(property.profiles?.full_name ?? "L")[0].toUpperCase()}
+                {(property.owner?.full_name ?? "L")[0].toUpperCase()}
               </div>
               <div>
-                <p className="font-medium text-sm">{property.profiles?.full_name ?? "Landlord"}</p>
+                <p className="font-medium text-sm">{property.owner?.full_name ?? "Landlord"}</p>
                 <p className="text-xs text-muted-foreground">Verified landlord</p>
               </div>
             </div>
@@ -230,9 +230,9 @@ function PropertyDetailPage() {
               {favorited ? "Saved" : "Save to favorites"}
             </Button>
 
-            {property.profiles?.phone && user && (
+            {property.owner?.phone && user && (
               <div className="mt-4 pt-4 border-t flex items-center gap-2 text-sm">
-                <Phone className="h-4 w-4 text-primary" /> {property.profiles.phone}
+                <Phone className="h-4 w-4 text-primary" /> {property.owner.phone}
               </div>
             )}
           </div>
