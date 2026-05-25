@@ -36,11 +36,17 @@ function PropertyDetailPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("properties")
-        .select("*, property_images(*), profiles!properties_owner_id_fkey(id,full_name,phone,avatar_url)")
+        .select("*, property_images(*)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      if (!data) return null;
+      const { data: owner } = await supabase
+        .from("profiles")
+        .select("id,full_name,phone,avatar_url")
+        .eq("id", data.owner_id)
+        .maybeSingle();
+      return { ...data, owner };
     },
   });
 
