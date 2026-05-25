@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { formatKES } from "@/lib/property-helpers";
+import { PropertyMap } from "@/components/property-map";
 
 export const Route = createFileRoute("/properties/$id")({
   component: PropertyDetailPage,
@@ -171,7 +172,13 @@ function PropertyDetailPage() {
 
           <section className="mb-8">
             <h2 className="text-xl font-semibold mb-3">Location</h2>
-            <p className="text-muted-foreground">{property.address}</p>
+            <p className="text-muted-foreground mb-3">{property.address}, {property.city}</p>
+            <PropertyMap
+              lat={property.latitude}
+              lng={property.longitude}
+              address={`${property.address}, ${property.neighborhood ?? ""} ${property.city}, Kenya`}
+              title={property.title}
+            />
           </section>
         </div>
 
