@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { PROPERTY_TYPES, KENYA_CITIES } from "@/lib/property-helpers";
+import { geocodeAddress } from "@/lib/geocode.functions";
 import { Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -35,6 +37,7 @@ const schema = z.object({
 function NewListingPage() {
   const { user, isLandlord, refreshRoles } = useAuth();
   const navigate = useNavigate();
+  const geocode = useServerFn(geocodeAddress);
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [f, setF] = useState({
@@ -55,6 +58,12 @@ function NewListingPage() {
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     setBusy(true);
     try {
+      let lat: number | null = null;
+      let lng: number | null = null;
+      try {
+        const g = await geocode({ data: { address: `${parsed.data.address}, ${parsed.data.neighborhood ?? ""} ${parsed.data.city}, Kenya` } });
+        lat = g.lat; lng = g.lng;
+      } catch { /* geocoding optional */ }
       const { data: prop, error } = await supabase.from("properties").insert({
         owner_id: user.id,
         title: parsed.data.title,
@@ -68,6 +77,8 @@ function NewListingPage() {
         address: parsed.data.address,
         city: parsed.data.city,
         neighborhood: parsed.data.neighborhood || null,
+        latitude: lat,
+        longitude: lng,
         furnished: f.furnished, parking: f.parking, pet_friendly: f.pet_friendly, security: f.security,
         status: "pending",
       }).select().single();
