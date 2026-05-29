@@ -60,7 +60,10 @@ function BrowsePage() {
       if (search.max_price) q = q.lte("price", search.max_price);
       if (search.furnished) q = q.eq("furnished", true);
       if (search.parking) q = q.eq("parking", true);
-      if (search.q) q = q.or(`title.ilike.%${search.q}%,description.ilike.%${search.q}%,neighborhood.ilike.%${search.q}%`);
+      if (search.q) {
+        const safeQ = search.q.replace(/[(),*%\\]/g, "").slice(0, 100);
+        if (safeQ) q = q.or(`title.ilike.%${safeQ}%,description.ilike.%${safeQ}%,neighborhood.ilike.%${safeQ}%`);
+      }
 
       const { data, error } = await q.order("created_at", { ascending: false }).limit(60);
       if (error) throw error;
